@@ -68,12 +68,15 @@ def crear_tabla(conexion, cursor):
     conexion.commit()
     print("La tabla se ha creado correctamente")
 
-def insertar_registros(conexion, cursor):
+def insertar_registros(conexion, cursor, s_id_persona, s_nombre, s_apellido1, s_apellido2, s_edad, s_num_mascotas, s_altura):
+        cursor.execute(f"INSERT INTO CristinaSanchez (id_persona, nombre, apellido1, apellido2, edad, num_mascotas, altura) VALUES ('{s_id_persona}', '{s_nombre}', '{s_apellido1}', '{s_apellido2}', '{s_edad}', '{s_num_mascotas}', '{s_altura}');")
+        conexion.commit()
+        print("Registro insertado con éxito")
 
+def insertar_registro_datos_por_consola(conexion, cursor):
     numRegistros = int(input("Ingrese el número de registros que desea ingresar: "))
-
     for i in range(numRegistros):
-        print(f"Registro: {i+1}/{numRegistros}")
+        print(f"Registro: {i + 1}/{numRegistros}")
         s_id_persona = input("Id: ")
         s_nombre = input("Nombre: ")
         s_apellido1 = input("Apellido 1: ")
@@ -81,12 +84,9 @@ def insertar_registros(conexion, cursor):
         s_edad = int(input("Edad: "))
         s_num_mascotas = int(input("Número de mascotas: "))
         s_altura = float(input("Altura: "))
+        insertar_registros(conexion, cursor, s_id_persona, s_nombre, s_apellido1, s_apellido2, s_edad, s_num_mascotas, s_altura)
 
-        cursor.execute(f"INSERT INTO CristinaSanchez (id_persona, nombre, apellido1, apellido2, edad, num_mascotas, altura) VALUES ('{s_id_persona}', '{s_nombre}', '{s_apellido1}', '{s_apellido2}', '{s_edad}', '{s_num_mascotas}', '{s_altura}');")
-        conexion.commit()
-        print("Registro insertado con éxito")
-
-def obtener_datos(conexion, cursor):
+def obtener_datos_de_tabla(conexion, cursor):
     cursor.execute("SELECT * FROM CristinaSanchez;")
     conexion.commit()
     registros = cursor.fetchall()
@@ -96,6 +96,7 @@ def obtener_datos(conexion, cursor):
         print(f"\t'{registro}'")
 
 def eliminar_tabla(conexion, cursor):
+    print("Eliminando la tabla...")
     cursor.execute("DROP TABLE IF EXISTS CristinaSanchez;")
     conexion.commit()
     print("Tabla eliminada con éxito")
@@ -110,34 +111,60 @@ def eliminar_registros(conexion, cursor):
     print("6 - Mascotas")
     print("7 - Altura")
 
-    valor = input("Ingrese el número: ")
+    valor = int(input("Ingrese el número: "))
     if valor in [1, 2, 3, 4, 5, 6, 7]:
-        if valor == '1':
+        if valor == 1:
             id = input("Id: ")
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE nombre = '{id}';")
-        elif valor == '2':
+        elif valor == 2:
             nombre = input("Nombre: ")
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE nombre = '{nombre}';")
-        elif valor == '3':
+        elif valor == 3:
             apellido1 = input("Apellido 1: ")
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE apellido1 = '{apellido1}';")
-        elif valor == '4':
+        elif valor == 4:
             apellido2 = input("Apellido 2: ")
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE apellido2 = '{apellido2}';")
-        elif valor == '5':
+        elif valor == 5:
             edad = int(input("Edad: "))
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE edad = '{edad}';")
-        elif valor == '6':
+        elif valor == 6:
             num_mascotas = int(input("Número de mascotas: "))
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE num_mascotas = '{num_mascotas}';")
-        elif valor == '7':
+        elif valor == 7:
             altura = float(input("Altura: "))
             cursor.execute(f"DELETE FROM CristinaSanchez WHERE altura = '{altura}';")
         conexion.commit()
     else:
         print("Valor no válido, debe ingresar un valor del 1 al 7")
 
-    obtener_datos(conexion, cursor)
+    obtener_datos_de_tabla(conexion, cursor)
+
+
+def crear_tabla_completa(conexion, cursor):
+    nombres = ["Cristina", "Alberto", "David", "Maria", "Jesús"]
+    apellidos_prim = ["Sanchez", "Giménez", "Moreno", "Velázquez", "Afonso"]
+    apellidos_sec = ["González", "Rodríguez", "Fernandez", "Lucero", "Quiroga"]
+    edades = [20, 60, 35, 50, 28]
+    num_mascotas = [2, 0, 5, 4, 1]
+    alturas = [1.72, 1.45, 1.80, 1.90, 1.70]
+
+    #Eliminamos la tabla si ya existe para que no nos de problemas con la primary key
+    eliminar_tabla(conexion, cursor)
+
+    #Creamos la tabla si no existe
+    print("Creando la tabla...")
+    crear_tabla(conexion, cursor)
+
+    print("Insertando registros en la tabla...")
+    #Insertamos los datos en la tabla
+    for i in range(5):
+        insertar_registros(conexion, cursor, i+1, nombres[i], apellidos_prim[i], apellidos_sec[i], edades[i], num_mascotas[i], alturas[i])
+
+    print("Los registros que tiene la tabla actualmente: ")
+    #Mostramos la tabla ya creada
+    obtener_datos_de_tabla(conexion, cursor)
+
 
 if __name__ == '__main__':
     sigue_conectar_bbdd = True
@@ -151,24 +178,27 @@ if __name__ == '__main__':
         while sigue_bbdd:
             conexion, cursor = conectar_bd(respuesta)
             print("¿Qué desea realizar?")
-            print("1 - Crear tabla")
-            print("2 - Insertar registros")
-            print("3 - Obtener datos")
-            print("4 - Eliminar registros")
-            print("5 - Eliminar tabla")
+            print("1 - Crear la tabla con los 5 registros")
+            print("2 - Crear tabla")
+            print("3 - Insertar registros")
+            print("4 - Obtener datos")
+            print("5 - Eliminar registros")
+            print("6 - Eliminar tabla")
             print("0 - Volver")
-            accion_recogida = input("Ingrese el número(0-5): ")
+            accion_recogida = input("Ingrese el número(0-6): ")
             if accion_recogida == '0':
                 sigue_bbdd = False
             if accion_recogida == '1':
-                crear_tabla(conexion, cursor)
+                crear_tabla_completa(conexion, cursor)
             elif accion_recogida == '2':
-                insertar_registros(conexion, cursor)
+                crear_tabla(conexion, cursor)
             elif accion_recogida == '3':
-                obtener_datos(conexion, cursor)
+                insertar_registro_datos_por_consola(conexion, cursor)
             elif accion_recogida == '4':
-                eliminar_registros(conexion, cursor)
+                obtener_datos_de_tabla(conexion, cursor)
             elif accion_recogida == '5':
+                eliminar_registros(conexion, cursor)
+            elif accion_recogida == '6':
                 eliminar_tabla(conexion, cursor)
             cursor.close()
             conexion.close()
