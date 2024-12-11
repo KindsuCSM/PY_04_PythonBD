@@ -1,7 +1,7 @@
 #PostgreSQL, MySQL (o MaríaDB) y SQLite3
 
-import mariadb
 import sqlite3
+import mariadb
 import psycopg
 import psycopg_binary
 import sys
@@ -9,7 +9,7 @@ import sys
 user = 'root'
 password = ''
 host = 'localhost'
-port = '3306'
+port = 3306
 database = 'bdpython'
 
 def preguntar_bd():
@@ -47,7 +47,7 @@ def conectar_bd(respuesta):
                 user=user,
                 password=password
             )
-            print(f"La conexión con PostgreSQL a la base de datos {database} se ha realizado con éxito")
+            print(f"La conexión con PostgreSQL se ha realizado con éxito")
 
         elif respuesta == 2:
             #Nos conectamos a la base de datos sin especificar el nombre, en caso de que no exista la creamos
@@ -70,7 +70,7 @@ def conectar_bd(respuesta):
             conexion.close()
             conexion = mariadb.connect(
                 host=host,
-                database=database,
+                database='bdpython',
                 user=user,
                 password=password,
                 port=port
@@ -92,16 +92,7 @@ def conectar_bd(respuesta):
 def crear_tabla(cursor):
     cursor.execute("DROP TABLE IF EXISTS CristinaSanchez")
 
-    sql_crear = '''CREATE TABLE CristinaSanchez(
-        nombre CHAR(20) PRIMARY KEY,
-        apellido1 CHAR(20),
-        apellido2 CHAR(20),
-        edad INT,
-        num_mascotas INT,
-        altura FLOAT
-    )'''
-
-    cursor.execute(sql_crear)
+    cursor.execute("CREATE TABLE CristinaSanchez(nombre CHAR(20) PRIMARY KEY, apellido1 CHAR(20), apellido2 CHAR(20), edad INT, num_mascotas INT, altura FLOAT )")
     print("La tabla se ha creado correctamente")
 
 def insertar_registros(cursor):
@@ -109,16 +100,14 @@ def insertar_registros(cursor):
 
     for i in range(numRegistros):
         print(f"Registro: {i+1}/{numRegistros}")
-        nombre = input("Nombre del registro: ")
-        apellido1 = input("Apellido 1 del registro: ")
-        apellido2 = input("Apellido 2 del registro: ")
-        edad = int(input("Edad del registro: "))
-        num_mascotas = int(input("Número de mascotas del registro: "))
-        altura = float(input("Altura del registro: "))
+        s_nombre = input("Nombre del registro: ")
+        s_apellido1 = input("Apellido 1 del registro: ")
+        s_apellido2 = input("Apellido 2 del registro: ")
+        s_edad = int(input("Edad del registro: "))
+        s_num_mascotas = int(input("Número de mascotas del registro: "))
+        s_altura = float(input("Altura del registro: "))
 
-        sql_insertar = '''INSERT INTO CristinaSanchez (nombre, apellido1, apellido2, edad, num_mascotas, altura) 
-                          VALUES (%s, %s, %s, %s, %s, %s)'''
-        cursor.execute(sql_insertar, (nombre, apellido1, apellido2, edad, num_mascotas, altura))
+        cursor.execute(f"INSERT INTO CristinaSanchez (nombre, apellido1, apellido2, edad, num_mascotas, altura) VALUES ('{s_nombre}', '{s_apellido1}', '{s_apellido2}', '{s_edad}', '{s_num_mascotas}', '{s_altura}')")
         print("Registro insertado con éxito")
 
 def obtener_datos(cursor):
@@ -140,28 +129,22 @@ def eliminar_registros(cursor):
 
     if valor == '1':
         nombre = input("Nombre: ")
-        sql = "DELETE FROM CristinaSanchez WHERE nombre = %s"
-        cursor.execute(sql, (nombre,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE nombre = '{nombre}'")
     elif valor == '2':
         apellido1 = input("Apellido 1: ")
-        sql = "DELETE FROM CristinaSanchez WHERE apellido1 = %s"
-        cursor.execute(sql, (apellido1,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE apellido1 = '{apellido1}'")
     elif valor == '3':
         apellido2 = input("Apellido 2: ")
-        sql = "DELETE FROM CristinaSanchez WHERE apellido2 = %s"
-        cursor.execute(sql, (apellido2,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE apellido2 = '{apellido2}'")
     elif valor == '4':
         edad = int(input("Edad: "))
-        sql = "DELETE FROM CristinaSanchez WHERE edad = %s"
-        cursor.execute(sql, (edad,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE edad = {edad}")
     elif valor == '5':
         num_mascotas = int(input("Número de mascotas: "))
-        sql = "DELETE FROM CristinaSanchez WHERE num_mascotas = %s"
-        cursor.execute(sql, (num_mascotas,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE num_mascotas = {num_mascotas}")
     elif valor == '6':
         altura = float(input("Altura: "))
-        sql = "DELETE FROM CristinaSanchez WHERE altura = %s"
-        cursor.execute(sql, (altura,))
+        cursor.execute(f"DELETE FROM CristinaSanchez WHERE altura = {altura}")
 
     obtener_datos(cursor)
 
